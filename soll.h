@@ -1,11 +1,16 @@
+#ifndef SOLL_H
+#define SOLL_H
+
 #include "general/general.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
 typedef struct soll soll;
+typedef struct Node Node;
 
 typedef enum { none, mtf, transpose } orgtype;
+
 
 /*
 Create an empty soll. Can be of type:
@@ -49,3 +54,5 @@ void soll_tostring(soll* s, char* str);
 
 // Clears up all space used
 bool soll_free(soll* s);
+
+#endif // SOLL_H

@@ -2,29 +2,34 @@
 #define SPECIFIC_H
 
 #include <stdbool.h>
-#include "soll.h"
+#include "../soll.h"
 
-// Define string representations for SOLL types
+// Define string representations for SOLL types.
 #define SOLLTYPE_NONE "none"
 #define SOLLTYPE_MTF "mtf"
 #define SOLLTYPE_TRANSPOSE "transpose"
 
-// Function to get SOLL type as string
+// Function to get SOLL type as string.
 const char* get_solltype_name(orgtype type);
 
-// Forward declaration of node struct
-typedef struct Node Node;
-
-// Definition of node struct
 struct Node {
     char *data;
-    Node *next;
-    Node *prev;
+    struct Node *next;
+    struct Node *prev;
     int frequency;
 };
 
+struct soll {
+    Node *head;
+    Node *tail;
+    int size;
+    orgtype type;
+};
+
+Node* create_node(const char* str);
+
 void move_to_front(soll *s, Node *node);
 
-void transpose(soll *s, Node *node);
+void trans(soll *s, Node *node);
 
 #endif
