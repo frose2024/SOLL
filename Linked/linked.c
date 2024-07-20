@@ -1,19 +1,27 @@
 #include "specific.h"
 
 
+static const char* current_solltype;
 
-soll* soll_init(orgtype type) {
-     // Allocate memroy for SOLL struct. 
-    soll* s = (soll*)malloc(sizeof(soll));                 
-    if (!s) {
-        fprintf(stderr, "Memory allocation failed\n");     
-        exit(EXIT_FAILURE);
+const char* get_solltype(void) {
+    return current_solltype;
+}
+
+void set_solltype(orgtype type) {
+    switch (type) {
+        case none:
+            current_solltype = SOLLTYPE_NONE;
+            break;
+        case mtf:
+            current_solltype = SOLLTYPE_MTF;
+            break;
+        case transpose:
+            current_solltype = SOLLTYPE_TRANSPOSE;
+            break;
+        default:
+            current_solltype = "unknown";
+            break;
     }
-    s->head = NULL;                                         
-    s->tail = NULL;                                         
-    s->size = 0;                                           
-    s->type = type;                                                                      
-    return s;                                               
 }
 
 const char* get_solltype_name(orgtype type) {
@@ -27,6 +35,21 @@ const char* get_solltype_name(orgtype type) {
         default:
             return "unknown";
     }
+}
+
+soll* soll_init(orgtype type) {
+     // Allocate memroy for SOLL struct. 
+    soll* s = (soll*)malloc(sizeof(soll));                 
+    if (!s) {
+        fprintf(stderr, "Memory allocation failed\n");     
+        exit(EXIT_FAILURE);
+    }
+    s->head = NULL;                                         
+    s->tail = NULL;                                         
+    s->size = 0;                                           
+    s->type = type;
+    s->solltype_string = get_solltype_name(type);                                                                      
+    return s;                                               
 }
 
 // Function to create new node.
@@ -55,10 +78,10 @@ void soll_add(soll* s, char* str) {
      // If SOLL is null, do nothing.
     if (!s) return;                                            
     Node* new_node = create_node(str);     
-    // If list is empty, set head and tail to new node.                      
+    // If list empty, set head+tail to new node.                      
     if (!s->head) {                                             
         s->head = s->tail = new_node;   
-        // If list is not empty, add new node to end of list.                             
+        // If list !empty, add new node to end of list.                             
     } else {                                                    
         s->tail->next = new_node;
         new_node->prev = s->tail;
@@ -110,10 +133,97 @@ bool soll_remove(soll* s, char* str) {
     return false;
 }
 
+// Node helper function. Find node, count pointer chases. 
+Node* find_node(soll* s, char* str, long* cnt) {
+    if (!s || !str) return NULL;
 
+    Node* current = s->head;
+    *cnt = 0;
 
-// TODO : Implement soll_isin, check if element is in list + increment its frequency.
+    while (current) {
+        (*cnt)++;
+        if (strcmp(current->data, str) == 0) {
+            current->frequency++;
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
 
+// MTF helper function. Moves the node. 
+void move_to_front(soll* s, Node* node) {
+    if (node == s->head) return;
+
+    if (node->prev) {
+        node->prev->next = node->next;
+    }
+    if (node->next) {
+        node->next->prev = node->prev;
+    } else {
+        s->tail = node->prev;
+    }
+    node->next = s->head;
+    s->head->prev = node;
+    node->prev = NULL;
+    s->head = node;
+}
+
+void transpose_node(soll* s, Node* node) {
+    if (node == s->head || !node->prev) {
+        return;
+    }
+    Node* prev = node->prev;
+    Node* prevprev = prev->prev;
+    Node* next = node->next;
+
+    // Remove node from current position
+    if (next) {
+        next->prev = prev;
+    } else {
+        s->tail = prev;
+    }
+    prev->next = next;
+
+    // Insert node in front of prev
+    node->next = prev;
+    node->prev = prevprev;
+    prev->prev = node;
+    if (prevprev) {
+        prevprev->next = node;
+    } else {
+        s->head = node;
+    }
+}
+
+void print_list(soll* s) {
+    Node* current = s->head;
+    while (current) {
+        printf("%s(%d) -> ", current->data, current->frequency);
+        current = current->next;
+    }
+    printf("NULL\n");
+}
+
+bool soll_isin(soll* s, char* str, long* cnt) {
+    Node* node = find_node(s, str, cnt);
+    if (!node) {
+        return false;
+    }
+    switch (s->type) {
+        case none:
+            break;
+        case mtf:
+            move_to_front(s, node);
+            break;
+        case transpose:
+            transpose_node(s, node);
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
 
 
 // TODO : Implement soll_tostring, convert list to a string representation.
@@ -125,7 +235,18 @@ bool soll_remove(soll* s, char* str) {
 
 
 // TODO : Implement soll_freq, return the frequency of an element. 
+int soll_freq(soll* s, char* str) {
+    if (!s || !str) return 0;
 
+    Node* current = s->head;
+    while (current) {
+        if (strcmp(current->data, str) == 0) {
+            return current->frequency;
+        }
+        current = current->next;
+    }
+    return 0;
+}
 
 
 // TODO : Implement move_to_front function.
