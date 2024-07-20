@@ -5,6 +5,7 @@
 #include "../Linked/specific.h"
 
 
+void test_soll_functions(void);
 
 int main(void) {
     test_soll_functions();

@@ -151,7 +151,7 @@ Node* find_node(soll* s, char* str, long* cnt) {
     return NULL;
 }
 
-// MTF helper function. Moves the node. 
+// MTF function. Moves the node. 
 void move_to_front(soll* s, Node* node) {
     if (node == s->head) return;
 
@@ -169,6 +169,7 @@ void move_to_front(soll* s, Node* node) {
     s->head = node;
 }
 
+// Tranpose function. Swaps the nodes.
 void transpose_node(soll* s, Node* node) {
     if (node == s->head || !node->prev) {
         return;
@@ -196,6 +197,7 @@ void transpose_node(soll* s, Node* node) {
     }
 }
 
+// Print list for debug purposes. 
 void print_list(soll* s) {
     Node* current = s->head;
     while (current) {
@@ -205,6 +207,7 @@ void print_list(soll* s) {
     printf("NULL\n");
 }
 
+// Boolean to check if a given string is in the list/not. 
 bool soll_isin(soll* s, char* str, long* cnt) {
     Node* node = find_node(s, str, cnt);
     if (!node) {
@@ -233,8 +236,7 @@ bool soll_isin(soll* s, char* str, long* cnt) {
 // TODO : Implement soll_size, return size of the list.
 
 
-
-// TODO : Implement soll_freq, return the frequency of an element. 
+// Function to get number of times element accessed. 
 int soll_freq(soll* s, char* str) {
     if (!s || !str) return 0;
 
@@ -247,14 +249,6 @@ int soll_freq(soll* s, char* str) {
     }
     return 0;
 }
-
-
-// TODO : Implement move_to_front function.
-
-
-
-// TODO : Implement transpose function.
-
 
 
 //TODO : Modify the soll_isin function to re-organise the list when element is accessed depending on the orgtype.

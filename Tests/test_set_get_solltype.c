@@ -5,6 +5,8 @@
 #include "../Linked/specific.h"
 
 
+void test_set_get_solltype(void);
+
 int main(void) {
     test_set_get_solltype();
     return 0;
