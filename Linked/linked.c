@@ -1,27 +1,14 @@
 #include "specific.h"
 
-
-static const char* current_solltype;
+static const char* current_solltype = "none";
 
 const char* get_solltype(void) {
     return current_solltype;
 }
 
 void set_solltype(orgtype type) {
-    switch (type) {
-        case none:
-            current_solltype = SOLLTYPE_NONE;
-            break;
-        case mtf:
-            current_solltype = SOLLTYPE_MTF;
-            break;
-        case transpose:
-            current_solltype = SOLLTYPE_TRANSPOSE;
-            break;
-        default:
-            current_solltype = "unknown";
-            break;
-    }
+    static const char* types[] = {"none", "mtf", "transpose", "unknown"};
+    current_solltype = types[type];
 }
 
 const char* get_solltype_name(orgtype type) {
@@ -38,19 +25,22 @@ const char* get_solltype_name(orgtype type) {
 }
 
 soll* soll_init(orgtype type) {
-     // Allocate memroy for SOLL struct. 
-    soll* s = (soll*)malloc(sizeof(soll));                 
+    soll* s = (soll*)malloc(sizeof(soll));
     if (!s) {
-        fprintf(stderr, "Memory allocation failed\n");     
+        fprintf(stderr, "Memory allocation failed\n");
         exit(EXIT_FAILURE);
     }
-    s->head = NULL;                                         
-    s->tail = NULL;                                         
-    s->size = 0;                                           
+    s->head = NULL;
+    s->tail = NULL;
+    s->size = 0;
     s->type = type;
-    s->solltype_string = get_solltype_name(type);                                                                      
-    return s;                                               
+
+    set_solltype(type);
+    s->solltype_string = get_solltype_name(type);
+    
+    return s;
 }
+
 
 // Function to create new node.
 Node* create_node(const char* str) {
@@ -59,12 +49,10 @@ Node* create_node(const char* str) {
         fprintf(stderr, "Memory allocation failed\n");          
         exit(EXIT_FAILURE);
     }
-    // Allocate memory for data + copy the string. 
     new_node->data = strdup(str);                               
     if (!new_node->data) {
         fprintf(stderr, "Memory allocation failed\n");          
         free(new_node);
-         // Free the node + exit if memory allocation fails. 
         exit(EXIT_FAILURE);                                    
     }
     new_node->next = NULL;                                      
@@ -73,24 +61,35 @@ Node* create_node(const char* str) {
     return new_node;                                         
 }                       
 
-// Implement soll_add - add element to the list.
+// soll_add - add element to the list.
 void soll_add(soll* s, char* str) {
-     // If SOLL is null, do nothing.
-    if (!s) return;                                            
-    Node* new_node = create_node(str);     
-    // If list empty, set head+tail to new node.                      
-    if (!s->head) {                                             
-        s->head = s->tail = new_node;   
-        // If list !empty, add new node to end of list.                             
-    } else {                                                    
+    if (!s) {
+        return;
+    }
+    Node* current = s->head;
+    while (current) {
+        if (strcmp(current->data, str) == 0) {
+            current->frequency++;
+            return;
+        }
+        current = current->next;
+    }
+    Node* new_node = create_node(str);
+    if (!new_node) {
+        return;
+    }
+    if (!s->head) {
+        s->head = s->tail = new_node;
+    } else {
         s->tail->next = new_node;
         new_node->prev = s->tail;
         s->tail = new_node;
     }
-    s->size++;                                         
+    s->size++;
+    assert_list_integrity(s);
 }
 
-// Implement soll_free - free allocated memory.
+//  soll_free - free allocated memory.
 bool soll_free(soll* s) {
     if (!s) return true;
     Node* current = s->head;
@@ -107,9 +106,11 @@ bool soll_free(soll* s) {
     return true;
 }
 
-// Implement soll_remove - remove element from the list.
+//  soll_remove - remove element from the list.
 bool soll_remove(soll* s, char* str) {
-    if (!s || !str) return false;
+    if (!s || !str) {
+        return false;
+    }
     Node* current = s->head;
     while (current) {
         if (strcmp(current->data, str) == 0) {
@@ -117,6 +118,9 @@ bool soll_remove(soll* s, char* str) {
                 current->prev->next = current->next;
             } else {
                 s->head = current->next;
+                if (s->head) {
+                    s->head->prev = NULL;
+                }
             }
             if (current->next) {
                 current->next->prev = current->prev;
@@ -130,10 +134,11 @@ bool soll_remove(soll* s, char* str) {
         }
         current = current->next;
     }
+    assert_list_integrity(s);
     return false;
 }
 
-// Node helper function. Find node, count pointer chases. 
+// Hhelper function - find node + count the pointer chases. 
 Node* find_node(soll* s, char* str, long* cnt) {
     if (!s || !str) return NULL;
 
@@ -151,7 +156,7 @@ Node* find_node(soll* s, char* str, long* cnt) {
     return NULL;
 }
 
-// MTF function. Moves the node. 
+// Function to apply MTF orgtype.
 void move_to_front(soll* s, Node* node) {
     if (node == s->head) return;
 
@@ -169,7 +174,7 @@ void move_to_front(soll* s, Node* node) {
     s->head = node;
 }
 
-// Tranpose function. Swaps the nodes.
+// Function to apply transpose orgtype.
 void transpose_node(soll* s, Node* node) {
     if (node == s->head || !node->prev) {
         return;
@@ -178,7 +183,6 @@ void transpose_node(soll* s, Node* node) {
     Node* prevprev = prev->prev;
     Node* next = node->next;
 
-    // Remove node from current position
     if (next) {
         next->prev = prev;
     } else {
@@ -186,7 +190,6 @@ void transpose_node(soll* s, Node* node) {
     }
     prev->next = next;
 
-    // Insert node in front of prev
     node->next = prev;
     node->prev = prevprev;
     prev->prev = node;
@@ -197,7 +200,7 @@ void transpose_node(soll* s, Node* node) {
     }
 }
 
-// Print list for debug purposes. 
+// Print list when debugging.
 void print_list(soll* s) {
     Node* current = s->head;
     while (current) {
@@ -228,15 +231,36 @@ bool soll_isin(soll* s, char* str, long* cnt) {
     return true;
 }
 
+// Function to turn list into a string.
+void soll_tostring(soll* s, char* str) {
+    if (!s || !s->head) {
+        strcpy(str, "");
+        return;
+    }
+    Node* current = s->head;
+    char* end = str + 999;
+    str[0] = '\0';
+    char* ptr = str;
 
-// TODO : Implement soll_tostring, convert list to a string representation.
+    while (current && ptr < end) {
+        ptr += snprintf(ptr, end - ptr, "%s(%d)", current->data, current->frequency);
+        if (current->next && ptr < end) {
+            ptr += snprintf(ptr, end - ptr, "|");
+        }
+        current = current->next;
+    }
+    *ptr = '\0';
+}
 
+// soll_size - return size of the list.
+int soll_size(soll* s) {
+    if (s == NULL) {
+        return 0;
+    }
+    return s->size;
+}
 
-
-// TODO : Implement soll_size, return size of the list.
-
-
-// Function to get number of times element accessed. 
+// soll_freq - number of times element accessed. 
 int soll_freq(soll* s, char* str) {
     if (!s || !str) return 0;
 
@@ -250,5 +274,17 @@ int soll_freq(soll* s, char* str) {
     return 0;
 }
 
-
-//TODO : Modify the soll_isin function to re-organise the list when element is accessed depending on the orgtype.
+// Helper function to check pointers are attaching/de-attaching correctly.
+void assert_list_integrity(soll* s) {
+    if (!s || !s->head) return;
+    Node* current = s->head;
+    assert(current->prev == NULL);
+    while (current) {
+        if (current->next) {
+            assert(current->next->prev == current);
+        } else {
+            assert(s->tail == current);
+        }
+        current = current->next;
+    }
+}

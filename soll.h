@@ -13,7 +13,6 @@ typedef enum { none, mtf, transpose } orgtype;
 
 const char* solltype_to_string(const soll* s);
 
-
 soll* soll_init(orgtype type);
 
 void soll_add(soll* s, char* str);

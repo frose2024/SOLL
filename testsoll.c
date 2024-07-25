@@ -7,13 +7,13 @@ int main(void)
 {
    char str[LISTSTRLEN];
    long cnt = 0;
-   printf("Test Self-Org LL (%s) Start ... ", SOLLTYPE);
 
    assert(soll_free(NULL));
    assert(soll_size(NULL) == 0);
    soll_add(NULL, "1one");
 
    soll* s = soll_init(none);
+   printf("Test Self-Org LL (%s) Start ... ", SOLLTYPE);
    assert(soll_size(s) == 0);
    soll_add(s, "1one");
    assert(soll_isin(s, "1one", &cnt));
@@ -35,6 +35,7 @@ int main(void)
    assert(soll_remove(s, "1one"));
    assert(soll_size(s) == 0);
    assert(soll_free(s));
+   // printf("none test passed\n");
 
    s = soll_init(mtf);
    assert(soll_size(s) == 0);
@@ -55,6 +56,7 @@ int main(void)
    assert(soll_remove(s, "1one"));
    assert(soll_size(s) == 0);
    assert(soll_free(s));
+   // printf("mtf test passed\n");
 
    s = soll_init(transpose);
    assert(soll_size(s) == 0);
@@ -76,15 +78,8 @@ int main(void)
    assert(soll_remove(s, "1one"));
    assert(soll_size(s) == 0);
    assert(soll_free(s));
-
+   // printf("transpose test passed\n");
 
    printf("End\n");
    return 0;
 }
-
-
-
-
-// My tests
-
-
