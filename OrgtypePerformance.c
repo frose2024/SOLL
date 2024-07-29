@@ -123,3 +123,6 @@ int compare(const void* a, const void* b) {
 
     return (statsA->total_time > statsB->total_time) - (statsA->total_time < statsB->total_time);
 }
+
+
+// cc -Wall -Wextra -Werror -std=c99 -O2 -g -fsanitize=address -o OrgtypePerformance OrgtypePerformance.c Linked/linked.c General/general.c -I../Linked -I../General
