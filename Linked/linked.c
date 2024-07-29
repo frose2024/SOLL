@@ -49,7 +49,14 @@ Node* create_node(const char* str) {
         fprintf(stderr, "Memory allocation failed\n");          
         exit(EXIT_FAILURE);
     }
-    new_node->data = strdup(str);                               
+    new_node->data = malloc(strlen(str) + 1); // +1 for the null terminator
+        if (new_node->data == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        free(new_node);
+        exit(EXIT_FAILURE);
+    }   
+    strcpy(new_node->data, str);
+                              
     if (!new_node->data) {
         fprintf(stderr, "Memory allocation failed\n");          
         free(new_node);
@@ -210,7 +217,7 @@ void print_list(soll* s) {
     printf("NULL\n");
 }
 
-// Boolean to check if a given string is in the list/not. 
+// sol_isin - check if a given string is in the list/not. 
 bool soll_isin(soll* s, char* str, long* cnt) {
     Node* node = find_node(s, str, cnt);
     if (!node) {
@@ -231,7 +238,7 @@ bool soll_isin(soll* s, char* str, long* cnt) {
     return true;
 }
 
-// Function to turn list into a string.
+// sol_tostring - turn list into a string.
 void soll_tostring(soll* s, char* str) {
     if (!s || !s->head) {
         strcpy(str, "");

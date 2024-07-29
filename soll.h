@@ -1,7 +1,7 @@
 #ifndef SOLL_H
 #define SOLL_H
 
-#include "general/general.h"
+#include "General/general.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>

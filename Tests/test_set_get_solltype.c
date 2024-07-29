@@ -6,9 +6,11 @@
 
 
 void test_set_get_solltype(void);
+void test_soll_getsolltype_invalid(void);
 
 int main(void) {
     test_set_get_solltype();
+    test_soll_getsolltype_invalid();
     return 0;
 }
 
@@ -29,5 +31,12 @@ void test_set_get_solltype(void) {
 
     printf("get_solltype_name passed.\n");
 }
+
+void test_soll_getsolltype_invalid(void) {
+    set_solltype((orgtype)6969);
+    assert(strcmp(get_solltype(), "unknown") == 0);
+    printf("Invalid type handling test passed.\n");
+}
+
 
 
