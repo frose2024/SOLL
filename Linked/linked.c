@@ -41,7 +41,6 @@ soll* soll_init(orgtype type) {
     return s;
 }
 
-
 // Function to create new node.
 Node* create_node(const char* str) {
     Node* new_node = (Node*)malloc(sizeof(Node));           
@@ -49,7 +48,7 @@ Node* create_node(const char* str) {
         fprintf(stderr, "Memory allocation failed\n");          
         exit(EXIT_FAILURE);
     }
-    new_node->data = malloc(strlen(str) + 1); // +1 for the null terminator
+    new_node->data = malloc(strlen(str) + 1);
         if (new_node->data == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
         free(new_node);

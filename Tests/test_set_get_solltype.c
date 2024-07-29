@@ -37,6 +37,3 @@ void test_soll_getsolltype_invalid(void) {
     assert(strcmp(get_solltype(), "unknown") == 0);
     printf("Invalid type handling test passed.\n");
 }
-
-
-

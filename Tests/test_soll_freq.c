@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include "soll.h"
+#include "../soll.h"
 #include "../Linked/specific.h"
 
 
 void test_soll_freq(void);
+void test_soll_freq_edgecases(void);
 
 int main(void) {
     test_soll_freq();
+    test_soll_freq_edgecases();
     return 0;
 }
 
@@ -77,6 +79,38 @@ void test_soll_freq(void) {
 
     soll_free(s);
 
-    printf("soll_freq tests passed.\n");
+    printf("basic soll_freq tests passed.\n");
+
+
+    // Testing edge cases for soll_freq
+
 }
 
+void test_soll_freq_edgecases(void) {
+    long cnt;
+
+    // Test soll_freq with empty list.
+    soll* s = soll_init(none);
+    assert(soll_freq(s, "nonexistent") == 0);
+
+    // Add elements to list + test non-existent elements.
+    soll_add(s, "test1");
+    soll_add(s, "test2");
+    assert(soll_freq(s, "nonexistent") == 0); 
+
+    // Repetitive adds and removals.
+    soll_add(s, "test3");
+    soll_add(s, "test3");
+    soll_remove(s, "test3");
+    soll_add(s, "test3");  // Should reset the frequency to 1.
+    assert(soll_freq(s, "test3") == 1);
+
+    // Access elements to simulate a really popular node. 
+    soll_isin(s, "test1", &cnt);
+    soll_isin(s, "test1", &cnt);
+    soll_isin(s, "test1", &cnt);
+    assert(soll_freq(s, "test1") == 4);
+
+    soll_free(s);
+    printf("soll_freq_edgecases passed.\n");
+}

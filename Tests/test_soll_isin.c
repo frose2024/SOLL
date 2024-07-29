@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include "soll.h"
+#include "../soll.h"
 #include "../Linked/specific.h"
 
 

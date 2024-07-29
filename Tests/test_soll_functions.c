@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include "soll.h"
+#include "../soll.h"
 #include "../Linked/specific.h"
 
 
 void test_soll_functions(void);
+void test_soll_functions_edgecases(void);
 
 int main(void) {
     test_soll_functions();
+    test_soll_functions_edgecases();
     return 0;
 }
 
@@ -71,3 +73,39 @@ void test_soll_functions(void) {
     printf("All tests passed.\n");
 }
 
+void test_soll_functions_edgecases(void){
+    soll * s = soll_init(none);
+
+    // Testing adding duplicate elements. 
+    soll_add(s, "test1");
+    soll_add(s, "test1");
+    assert(s->size == 1);
+    printf("Duplicate test passed.\n");
+
+    // Test removing non-existent elements
+    bool removed = soll_remove(s, "nonexistent");
+    assert(!removed);
+    assert(s->size == 1);
+    printf("Removing non-existent element passed.\n");
+
+    // Testing soll_isin on empty list. 
+    soll* empty = soll_init(none);
+    long cnt = 0;
+    bool found = soll_isin(empty, "test1", &cnt);
+    assert(!found);
+    printf("Empty list test passed.\n");
+
+    // Test multiple removes 
+    soll_add(s, "test2");
+    soll_remove(s, "test1");
+    soll_remove(s, "test2");
+    assert(s->size == 0);
+    printf("Multiple removes test passed.\n");
+
+    // Test freeing empty list
+    soll_free(empty);
+    printf("Freeing empty list passed.\n");
+
+    soll_free(s);
+    printf("All edge cases passed.\n");
+}
